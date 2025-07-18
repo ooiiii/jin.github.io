@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单机攻略站 - 一站式单机游戏资源平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B00', // 活力橙作为主色调
+                        secondary: '#1E293B', // 深蓝灰作为次要色
+                        dark: '#0F172A', // 深色背景
+                        light: '#F8FAFC', // 浅色文本
+                        accent: '#3B82F6', // 强调色
+                        success: '#10B981', // 成功色
+                        warning: '#F59E0B', // 警告色
+                        danger: '#EF4444', // 危险色
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                },
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+            }
+            .nav-link {
+                @apply relative text-light/80 hover:text-primary transition-colors duration-200 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-200 hover:after:w-full;
+            }
+            .btn-primary {
+                @apply bg-primary hover:bg-primary/90 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/30 transform hover:-translate-y-0.5;
+            }
+            .btn-secondary {
+                @apply bg-dark border border-light/20 hover:border-primary text-light font-medium py-2 px-6 rounded-lg transition-all duration-300;
+            }
+            .input-field {
+                @apply bg-secondary/50 border border-light/10 text-light rounded-lg px-8 py-3 w-full focus:outline-none focus:border-primary transition-colors duration-200;
+            }
+            .game-tag {
+                @apply bg-primary/20 text-primary text-sm font-medium px-3 py-1 rounded-full mr-2 mb-2 inline-block;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-inter bg-dark text-light min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header class="sticky top-0 z-50 bg-dark/90 backdrop-blur-md border-b border-light/10 transition-all duration-300">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 md:h-20">
+                <!-- 网站Logo -->
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                        <i class="fa fa-gamepad text-2xl"></i>
+                    </div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-light">
+                        单机<span class="text-primary">攻略站</span>
+                    </h1>
+                </div>
+
+                <!-- 桌面端导航 -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="nav-link font-medium">首页</a>
+                    <a href="#games" class="nav-link font-medium">热门游戏</a>
+                    <a href="#guides" class="nav-link font-medium">攻略教程</a>
+                    <a href="#downloads" class="nav-link font-medium">游戏下载</a>
+                    <a href="#community" class="nav-link font-medium">玩家社区</a>
+                </nav>
+
+                <!-- 搜索框和用户按钮 -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative hidden md:block">
+                        <input type="text" placeholder="搜索游戏或攻略..." class="input-field pl-20 pr-4 py-2 w-64 md:w-80">
+                        <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-light/50"></i>
+                    </div>
+                    <button
+                        class="bg-primary/20 hover:bg-primary/30 text-primary p-2 rounded-full transition-colors duration-200">
+                        <i class="fa fa-user-circle text-xl"></i>
+                    </button>
+                    <button class="md:hidden text-light text-2xl" id="mobile-menu-button">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 移动端导航菜单 -->
+        <div class="md:hidden hidden bg-secondary/95 backdrop-blur-md border-t border-light/10" id="mobile-menu">
+            <div class="container mx-auto px-4 py-3 space-y-3">
+                <div class="relative">
+                    <input type="text" placeholder="搜索游戏或攻略..." class="input-field pl-10">
+                    <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-light/50"></i>
+                </div>
+                <a href="#home" class="block py-2 text-light hover:text-primary transition-colors duration-200">首页</a>
+                <a href="#games"
+                    class="block py-2 text-light hover:text-primary transition-colors duration-200">热门游戏</a>
+                <a href="#guides"
+                    class="block py-2 text-light hover:text-primary transition-colors duration-200">攻略教程</a>
+                <a href="#downloads"
+                    class="block py-2 text-light hover:text-primary transition-colors duration-200">游戏下载</a>
+                <a href="#community"
+                    class="block py-2 text-light hover:text-primary transition-colors duration-200">玩家社区</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow">
+        <!-- 英雄区域 -->
+        <section id="home" class="relative bg-gradient-to-br from-dark to-secondary py-16 md:py-24 overflow-hidden">
+            <div class="absolute inset-0 z-0">
+                <img src="https://picsum.photos/id/1/1920/1080" alt="游戏背景"
+                    class="w-full h-full object-cover opacity-20">
+                <div class="absolute inset-0 bg-gradient-to-b from-dark/80 to-dark"></div>
+            </div>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="max-w-3xl">
+                    <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-shadow mb-4">
+                        探索单机游戏<br>
+                        <span class="text-primary">攻略与资源</span>的世界
+                    </h2>
+                    <p class="text-lg md:text-xl text-light/80 mb-8 max-w-2xl">
+                        为单机游戏爱好者提供最全面的攻略教程、游戏下载和玩家社区，让每一次游戏体验都更加精彩。
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#guides" class="btn-primary">
+                            查看攻略教程 <i class="fa fa-book ml-2"></i>
+                        </a>
+                        <a href="#downloads" class="btn-secondary">
+                            浏览游戏下载 <i class="fa fa-download ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 热门游戏区域 -->
+        <section id="games" class="py-16 bg-secondary">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
+                    <div>
+                        <h3 class="text-light/60 text-sm font-medium mb-2">热门推荐</h3>
+                        <h2 class="text-3xl md:text-4xl font-bold">热门单机游戏</h2>
+                    </div>
+
+                    <!-- 游戏分类筛选 -->
+                    <div class="w-full md:w-auto">
+                        <div class="relative">
+                            <select id="game-filter" class="appearance-none input-field pr-10 py-2">
+                                <option value="all">全部游戏</option>
+                                <option value="action">动作冒险</option>
+                                <option value="rpg">角色扮演</option>
+                                <option value="strategy">策略</option>
+                                <option value="simulation">模拟经营</option>
+                                <option value="horror">恐怖生存</option>
+                            </select>
+                            <i
+                                class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-light/50 pointer-events-none"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 游戏卡片网格 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="game-grid">
+                    <!-- 游戏卡片 1 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover game-card"
+                        data-category="action,rpg">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/237/600/400" alt="艾尔登法环游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                            <div
+                                class="absolute top-3 right-3 bg-primary text-white text-xs font-bold px-2 py-1 rounded">
+                                热门</div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">艾尔登法环</h4>
+                                <div class="flex items-center text-warning">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-half-o"></i>
+                                    <span class="text-light/70 text-sm ml-1">4.8</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">
+                                一款以正统黑暗奇幻世界为舞台的动作RPG，探索辽阔的场景与地下迷宫，挑战困难重重的险境。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">角色扮演</span>
+                                <span class="game-tag">开放世界</span>
+                                <span class="game-tag">动作</span>
+                            </div>
+                            <button class="view-game-details block text-center btn-primary w-full" data-id="1">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 游戏卡片 2 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover game-card"
+                        data-category="action,rpg,scifi">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/119/600/400" alt="赛博朋克2077游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">赛博朋克2077</h4>
+                                <div class="flex items-center text-warning">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-o"></i>
+                                    <span class="text-light/70 text-sm ml-1">4.2</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">
+                                未来都市的开放世界角色扮演游戏，玩家将扮演一名野心勃勃的雇佣兵，在夜之城中追寻永生的植入体。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">角色扮演</span>
+                                <span class="game-tag">开放世界</span>
+                                <span class="game-tag">科幻</span>
+                            </div>
+                            <button class="view-game-details block text-center btn-primary w-full" data-id="2">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 游戏卡片 3 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover game-card"
+                        data-category="rpg,fantasy">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/160/600/400" alt="霍格沃茨之遗游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                            <div
+                                class="absolute top-3 right-3 bg-success text-white text-xs font-bold px-2 py-1 rounded">
+                                新品</div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">霍格沃茨之遗</h4>
+                                <div class="flex items-center text-warning">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <span class="text-light/70 text-sm ml-1">4.9</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">
+                                在霍格沃茨的传奇时代成为你自己的女巫或巫师，体验19世纪的魔法世界，谱写属于自己的传奇。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">角色扮演</span>
+                                <span class="game-tag">魔法</span>
+                                <span class="game-tag">开放世界</span>
+                            </div>
+                            <button class="view-game-details block text-center btn-primary w-full" data-id="3">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 游戏卡片 4 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover game-card"
+                        data-category="action">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/180/600/400" alt="只狼影逝二度游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">只狼：影逝二度</h4>
+                                <div class="flex items-center text-warning">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <span class="text-light/70 text-sm ml-1">4.7</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">
+                                一款以日本战国时代为背景的动作冒险游戏，玩家将扮演一名独臂忍者，为拯救主人而展开冒险。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">动作</span>
+                                <span class="game-tag">冒险</span>
+                                <span class="game-tag">忍者</span>
+                            </div>
+                            <button class="view-game-details block text-center btn-primary w-full" data-id="4">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 游戏卡片 5 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover game-card"
+                        data-category="strategy,turn-based">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/106/600/400" alt="XCOM2游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">XCOM2</h4>
+                                <div class="flex items-center text-warning">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-half-o"></i>
+                                    <span class="text-light/70 text-sm ml-1">4.5</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">
+                                一款回合制策略游戏，玩家需要领导一支精英部队，对抗外星入侵者的统治，夺回地球的控制权。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">策略</span>
+                                <span class="game-tag">回合制</span>
+                                <span class="game-tag">科幻</span>
+                            </div>
+                            <button class="view-game-details block text-center btn-primary w-full" data-id="5">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 游戏卡片 6 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover game-card"
+                        data-category="simulation,management">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/175/600/400" alt="城市：天际线游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">城市：天际线</h4>
+                                <div class="flex items-center text-warning">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-o"></i>
+                                    <span class="text-light/70 text-sm ml-1">4.3</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">
+                                一款现代城市建设模拟游戏，玩家可以控制城市的方方面面，从区域规划到交通系统，打造属于自己的大都市。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">模拟</span>
+                                <span class="game-tag">经营</span>
+                                <span class="game-tag">城市建设</span>
+                            </div>
+                            <button class="view-game-details block text-center btn-primary w-full" data-id="6">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 游戏卡片 7 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover game-card"
+                        data-category="horror,survival">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/1025/600/400" alt="生化危机2重制版游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                            <div
+                                class="absolute top-3 right-3 bg-danger text-white text-xs font-bold px-2 py-1 rounded">
+                                恐怖</div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">生化危机2：重制版</h4>
+                                <div class="flex items-center text-warning">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-half-o"></i>
+                                    <span class="text-light/70 text-sm ml-1">4.6</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">
+                                经典生存恐怖游戏的重制版，玩家将扮演里昂·S·肯尼迪和克莱尔·雷德菲尔德，在被僵尸肆虐的浣熊市中求生。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">恐怖</span>
+                                <span class="game-tag">生存</span>
+                                <span class="game-tag">重制版</span>
+                            </div>
+                            <button class="view-game-details block text-center btn-primary w-full" data-id="7">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 游戏卡片 8 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover game-card"
+                        data-category="rpg,fantasy">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/110/600/400" alt="巫师3狂猎游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">巫师3：狂猎</h4>
+                                <div class="flex items-center text-warning">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <span class="text-light/70 text-sm ml-1">4.9</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">
+                                一款开放世界角色扮演游戏，玩家将扮演猎魔人杰洛特，在充满危险和阴谋的世界中寻找养女希里。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">角色扮演</span>
+                                <span class="game-tag">开放世界</span>
+                                <span class="game-tag">奇幻</span>
+                            </div>
+                            <button class="view-game-details block text-center btn-primary w-full" data-id="8">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 加载更多按钮 -->
+                <div class="mt-12 text-center">
+                    <button id="load-more" class="btn-secondary">
+                        加载更多游戏 <i class="fa fa-refresh ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 游戏详情模态框 -->
+        <div id="game-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+            <div class="absolute inset-0 bg-dark/80 backdrop-blur-sm" id="modal-overlay"></div>
+            <div class="relative bg-secondary rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-auto shadow-2xl transform transition-all duration-300 scale-95 opacity-0"
+                id="modal-content">
+                <button id="close-modal"
+                    class="absolute top-4 right-4 text-light/70 hover:text-white text-2xl transition-colors duration-200">
+                    <i class="fa fa-times"></i>
+                </button>
+
+                <div class="p-6 md:p-8">
+                    <!-- 模态框内容将通过JavaScript动态填充 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载动画 -->
+        <div id="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-dark/70 hidden">
+            <div class="flex flex-col items-center">
+                <div class="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                <p class="text-light mt-4 text-lg">加载中...</p>
+            </div>
+        </div>
+
+        <!-- 攻略教程区域 -->
+        <section id="guides" class="py-16 bg-dark">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
+                    <div>
+                        <h3 class="text-light/60 text-sm font-medium mb-2">专业指导</h3>
+                        <h2 class="text-3xl md:text-4xl font-bold">游戏攻略教程</h2>
+                        <p class="text-light/70 mt-2 max-w-2xl">由资深玩家和游戏专家精心撰写的攻略指南，助你轻松通关各类单机游戏。</p>
+                    </div>
+
+                    <!-- 攻略搜索 -->
+                    <div class="w-full md:w-auto relative">
+                        <input type="text" id="guide-search" placeholder="搜索攻略..."
+                            class="input-field pl-10 pr-4 py-2 w-full md:w-80">
+                        <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-light/50"></i>
+                    </div>
+                </div>
+
+                <!-- 攻略分类导航 -->
+                <div class="flex overflow-x-auto scrollbar-hide space-x-4 mb-8 pb-4">
+                    <button
+                        class="guide-category-btn bg-primary text-white whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium">
+                        全部攻略
+                    </button>
+                    <button
+                        class="guide-category-btn bg-secondary hover:bg-secondary/80 text-light whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200">
+                        主线流程
+                    </button>
+                    <button
+                        class="guide-category-btn bg-secondary hover:bg-secondary/80 text-light whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200">
+                        隐藏要素
+                    </button>
+                    <button
+                        class="guide-category-btn bg-secondary hover:bg-secondary/80 text-light whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200">
+                        角色培养
+                    </button>
+                    <button
+                        class="guide-category-btn bg-secondary hover:bg-secondary/80 text-light whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200">
+                        BOSS战
+                    </button>
+                    <button
+                        class="guide-category-btn bg-secondary hover:bg-secondary/80 text-light whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200">
+                        收集攻略
+                    </button>
+                    <button
+                        class="guide-category-btn bg-secondary hover:bg-secondary/80 text-light whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200">
+                        难度挑战
+                    </button>
+                    <button
+                        class="guide-category-btn bg-secondary hover:bg-secondary/80 text-light whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200">
+                        新手教程
+                    </button>
+                </div>
+
+                <!-- 热门攻略推荐 -->
+                <div class="mb-12">
+                    <h3 class="text-xl font-bold mb-6">热门攻略推荐</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- 热门攻略卡片 1 -->
+                        <div class="bg-secondary rounded-xl overflow-hidden shadow-lg card-hover">
+                            <div class="relative h-40">
+                                <img src="https://picsum.photos/id/237/600/400" alt="艾尔登法环攻略封面"
+                                    class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                                <div class="absolute bottom-3 left-3">
+                                    <span class="bg-primary/90 text-white text-xs font-bold px-2 py-1 rounded">热门</span>
+                                </div>
+                            </div>
+                            <div class="p-5">
+                                <div class="flex items-center mb-3">
+                                    <img src="https://picsum.photos/id/1005/50/50" alt="作者头像"
+                                        class="w-8 h-8 rounded-full object-cover mr-3">
+                                    <div>
+                                        <p class="text-light/90 text-sm font-medium">老猎人</p>
+                                        <p class="text-light/60 text-xs">发布于 2023-03-15</p>
+                                    </div>
+                                </div>
+                                <h4 class="text-lg font-bold mb-2">艾尔登法环全BOSS无伤攻略指南</h4>
+                                <p class="text-light/70 text-sm mb-4 line-clamp-2">
+                                    掌握每个BOSS的攻击模式和弱点，学习躲避和反击技巧，成为真正的褪色者大师。</p>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center text-light/60 text-sm">
+                                        <i class="fa fa-eye mr-1"></i> 12.5k
+                                        <i class="fa fa-comment-o ml-3 mr-1"></i> 214
+                                        <i class="fa fa-heart-o ml-3 mr-1"></i> 876
+                                    </div>
+                                    <button
+                                        class="view-guide-details text-primary hover:text-primary/80 font-medium text-sm flex items-center transition-colors duration-200"
+                                        data-id="1">
+                                        阅读全文 <i class="fa fa-angle-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 热门攻略卡片 2 -->
+                        <div class="bg-secondary rounded-xl overflow-hidden shadow-lg card-hover">
+                            <div class="relative h-40">
+                                <img src="https://picsum.photos/id/119/600/400" alt="赛博朋克2077攻略封面"
+                                    class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                                <div class="absolute bottom-3 left-3">
+                                    <span class="bg-success/90 text-white text-xs font-bold px-2 py-1 rounded">推荐</span>
+                                </div>
+                            </div>
+                            <div class="p-5">
+                                <div class="flex items-center mb-3">
+                                    <img src="https://picsum.photos/id/1012/50/50" alt="作者头像"
+                                        class="w-8 h-8 rounded-full object-cover mr-3">
+                                    <div>
+                                        <p class="text-light/90 text-sm font-medium">夜之城传奇</p>
+                                        <p class="text-light/60 text-xs">发布于 2023-04-22</p>
+                                    </div>
+                                </div>
+                                <h4 class="text-lg font-bold mb-2">赛博朋克2077全结局达成条件</h4>
+                                <p class="text-light/70 text-sm mb-4 line-clamp-2">探索所有可能的结局分支，了解每个选择对剧情的影响，体验夜之城的不同命运。
+                                </p>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center text-light/60 text-sm">
+                                        <i class="fa fa-eye mr-1"></i> 9.8k
+                                        <i class="fa fa-comment-o ml-3 mr-1"></i> 176
+                                        <i class="fa fa-heart-o ml-3 mr-1"></i> 643
+                                    </div>
+                                    <button
+                                        class="view-guide-details text-primary hover:text-primary/80 font-medium text-sm flex items-center transition-colors duration-200"
+                                        data-id="2">
+                                        阅读全文 <i class="fa fa-angle-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 热门攻略卡片 3 -->
+                        <div class="bg-secondary rounded-xl overflow-hidden shadow-lg card-hover">
+                            <div class="relative h-40">
+                                <img src="https://picsum.photos/id/160/600/400" alt="霍格沃茨之遗攻略封面"
+                                    class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                                <div class="absolute bottom-3 left-3">
+                                    <span
+                                        class="bg-warning/90 text-white text-xs font-bold px-2 py-1 rounded">新发布</span>
+                                </div>
+                            </div>
+                            <div class="p-5">
+                                <div class="flex items-center mb-3">
+                                    <img src="https://picsum.photos/id/1027/50/50" alt="作者头像"
+                                        class="w-8 h-8 rounded-full object-cover mr-3">
+                                    <div>
+                                        <p class="text-light/90 text-sm font-medium">魔法教授</p>
+                                        <p class="text-light/60 text-xs">发布于 2023-05-10</p>
+                                    </div>
+                                </div>
+                                <h4 class="text-lg font-bold mb-2">霍格沃茨之遗全收集品位置指南</h4>
+                                <p class="text-light/70 text-sm mb-4 line-clamp-2">
+                                    找到所有的魔法生物、遗物和收集品，解锁隐藏区域和特殊能力，成为霍格沃茨最伟大的魔法师。</p>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center text-light/60 text-sm">
+                                        <i class="fa fa-eye mr-1"></i> 7.2k
+                                        <i class="fa fa-comment-o ml-3 mr-1"></i> 139
+                                        <i class="fa fa-heart-o ml-3 mr-1"></i> 528
+                                    </div>
+                                    <button
+                                        class="view-guide-details text-primary hover:text-primary/80 font-medium text-sm flex items-center transition-colors duration-200"
+                                        data-id="3">
+                                        阅读全文 <i class="fa fa-angle-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 最新攻略列表 -->
+                <div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold">最新攻略</h3>
+                        <a href="#"
+                            class="text-primary hover:text-primary/80 font-medium flex items-center transition-colors duration-200 text-sm">
+                            查看全部 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- 攻略列表项 1 -->
+                        <div class="bg-secondary rounded-xl p-5 hover:shadow-lg transition-all duration-300">
+                            <div class="flex flex-col md:flex-row gap-5">
+                                <div class="md:w-1/4">
+                                    <img src="https://picsum.photos/id/180/300/200" alt="只狼攻略封面"
+                                        class="w-full h-32 object-cover rounded-lg">
+                                </div>
+                                <div class="md:w-3/4">
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span
+                                            class="bg-primary/20 text-primary text-xs font-medium px-3 py-1 rounded-full">BOSS战</span>
+                                        <span
+                                            class="bg-light/10 text-light/80 text-xs font-medium px-3 py-1 rounded-full">只狼：影逝二度</span>
+                                    </div>
+                                    <h4 class="text-lg font-bold mb-2">只狼：影逝二度 - 剑圣一心终极攻略</h4>
+                                    <p class="text-light/70 text-sm mb-3 line-clamp-2">
+                                        面对游戏中最强BOSS，掌握正确的战斗策略和时机把握，击败剑圣一心，获得游戏最高成就。</p>
+                                    <div class="flex flex-wrap justify-between items-center gap-3">
+                                        <div class="flex items-center">
+                                            <img src="https://picsum.photos/id/1074/50/50" alt="作者头像"
+                                                class="w-7 h-7 rounded-full object-cover mr-2">
+                                            <span class="text-light/80 text-sm">忍术大师</span>
+                                        </div>
+                                        <div class="flex items-center text-light/60 text-sm">
+                                            <span>2023-02-28</span>
+                                            <span class="mx-2">•</span>
+                                            <i class="fa fa-eye mr-1"></i> 5.3k
+                                            <span class="mx-2">•</span>
+                                            <i class="fa fa-comment-o mr-1"></i> 98
+                                        </div>
+                                        <button
+                                            class="view-guide-details text-primary hover:text-primary/80 font-medium text-sm flex items-center transition-colors duration-200"
+                                            data-id="4">
+                                            阅读全文 <i class="fa fa-angle-right ml-1"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 攻略列表项 2 -->
+                        <div class="bg-secondary rounded-xl p-5 hover:shadow-lg transition-all duration-300">
+                            <div class="flex flex-col md:flex-row gap-5">
+                                <div class="md:w-1/4">
+                                    <img src="https://picsum.photos/id/106/300/200" alt="XCOM2攻略封面"
+                                        class="w-full h-32 object-cover rounded-lg">
+                                </div>
+                                <div class="md:w-3/4">
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span
+                                            class="bg-primary/20 text-primary text-xs font-medium px-3 py-1 rounded-full">策略</span>
+                                        <span
+                                            class="bg-light/10 text-light/80 text-xs font-medium px-3 py-1 rounded-full">XCOM2</span>
+                                    </div>
+                                    <h4 class="text-lg font-bold mb-2">XCOM2 - 专家难度开局指南与战术建议</h4>
+                                    <p class="text-light/70 text-sm mb-3 line-clamp-2">
+                                        在最高难度下如何生存并发展你的XCOM部队，掌握资源管理、人员配置和战术运用的关键技巧。</p>
+                                    <div class="flex flex-wrap justify-between items-center gap-3">
+                                        <div class="flex items-center">
+                                            <img src="https://picsum.photos/id/1025/50/50" alt="作者头像"
+                                                class="w-7 h-7 rounded-full object-cover mr-2">
+                                            <span class="text-light/80 text-sm">指挥官</span>
+                                        </div>
+                                        <div class="flex items-center text-light/60 text-sm">
+                                            <span>2023-02-15</span>
+                                            <span class="mx-2">•</span>
+                                            <i class="fa fa-eye mr-1"></i> 4.7k
+                                            <span class="mx-2">•</span>
+                                            <i class="fa fa-comment-o mr-1"></i> 76
+                                        </div>
+                                        <button
+                                            class="view-guide-details text-primary hover:text-primary/80 font-medium text-sm flex items-center transition-colors duration-200"
+                                            data-id="5">
+                                            阅读全文 <i class="fa fa-angle-right ml-1"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 攻略列表项 3 -->
+                        <div class="bg-secondary rounded-xl p-5 hover:shadow-lg transition-all duration-300">
+                            <div class="flex flex-col md:flex-row gap-5">
+                                <div class="md:w-1/4">
+                                    <img src="https://picsum.photos/id/175/300/200" alt="城市天际线攻略封面"
+                                        class="w-full h-32 object-cover rounded-lg">
+                                </div>
+                                <div class="md:w-3/4">
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span
+                                            class="bg-primary/20 text-primary text-xs font-medium px-3 py-1 rounded-full">新手教程</span>
+                                        <span
+                                            class="bg-light/10 text-light/80 text-xs font-medium px-3 py-1 rounded-full">城市：天际线</span>
+                                    </div>
+                                    <h4 class="text-lg font-bold mb-2">城市：天际线 - 高效城市规划与发展指南</h4>
+                                    <p class="text-light/70 text-sm mb-3 line-clamp-2">
+                                        从零基础开始，学习如何规划一个高效、美观且可持续发展的城市，避免常见的新手陷阱。</p>
+                                    <div class="flex flex-wrap justify-between items-center gap-3">
+                                        <div class="flex items-center">
+                                            <img src="https://picsum.photos/id/1066/50/50" alt="作者头像"
+                                                class="w-7 h-7 rounded-full object-cover mr-2">
+                                            <span class="text-light/80 text-sm">城市规划师</span>
+                                        </div>
+                                        <div class="flex items-center text-light/60 text-sm">
+                                            <span>2023-02-05</span>
+                                            <span class="mx-2">•</span>
+                                            <i class="fa fa-eye mr-1"></i> 4.2k
+                                            <span class="mx-2">•</span>
+                                            <i class="fa fa-comment-o mr-1"></i> 63
+                                        </div>
+                                        <button
+                                            class="view-guide-details text-primary hover:text-primary/80 font-medium text-sm flex items-center transition-colors duration-200"
+                                            data-id="6">
+                                            阅读全文 <i class="fa fa-angle-right ml-1"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 攻略列表项 4 -->
+                        <div class="bg-secondary rounded-xl p-5 hover:shadow-lg transition-all duration-300">
+                            <div class="flex flex-col md:flex-row gap-5">
+                                <div class="md:w-1/4">
+                                    <img src="https://picsum.photos/id/1025/300/200" alt="生化危机攻略封面"
+                                        class="w-full h-32 object-cover rounded-lg">
+                                </div>
+                                <div class="md:w-3/4">
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span
+                                            class="bg-primary/20 text-primary text-xs font-medium px-3 py-1 rounded-full">生存技巧</span>
+                                        <span
+                                            class="bg-light/10 text-light/80 text-xs font-medium px-3 py-1 rounded-full">生化危机2：重制版</span>
+                                    </div>
+                                    <h4 class="text-lg font-bold mb-2">生化危机2：重制版 - 硬核难度生存指南</h4>
+                                    <p class="text-light/70 text-sm mb-3 line-clamp-2">
+                                        在硬核难度下资源极度有限，学习如何高效利用弹药和治疗物品，合理规划路线，避免不必要的战斗。</p>
+                                    <div class="flex flex-wrap justify-between items-center gap-3">
+                                        <div class="flex items-center">
+                                            <img src="https://picsum.photos/id/1010/50/50" alt="作者头像"
+                                                class="w-7 h-7 rounded-full object-cover mr-2">
+                                            <span class="text-light/80 text-sm">生存专家</span>
+                                        </div>
+                                        <div class="flex items-center text-light/60 text-sm">
+                                            <span>2023-01-28</span>
+                                            <span class="mx-2">•</span>
+                                            <i class="fa fa-eye mr-1"></i> 3.9k
+                                            <span class="mx-2">•</span>
+                                            <i class="fa fa-comment-o mr-1"></i> 58
+                                        </div>
+                                        <button
+                                            class="view-guide-details text-primary hover:text-primary/80 font-medium text-sm flex items-center transition-colors duration-200"
+                                            data-id="7">
+                                            阅读全文 <i class="fa fa-angle-right ml-1"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 加载更多按钮 -->
+                    <div class="mt-10 text-center">
+                        <button id="load-more-guides" class="btn-secondary">
+                            加载更多攻略 <i class="fa fa-refresh ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 攻略详情模态框 -->
+        <div id="guide-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+            <div class="absolute inset-0 bg-dark/80 backdrop-blur-sm" id="guide-modal-overlay"></div>
+            <div class="relative bg-secondary rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-auto shadow-2xl transform transition-all duration-300 scale-95 opacity-0"
+                id="guide-modal-content">
+                <button id="close-guide-modal"
+                    class="absolute top-4 right-4 text-light/70 hover:text-white text-2xl transition-colors duration-200">
+                    <i class="fa fa-times"></i>
+                </button>
+
+                <div class="p-6 md:p-8">
+                    <!-- 模态框内容将通过JavaScript动态填充 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏下载区域 -->
+        <section id="downloads" class="py-16 bg-secondary">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
+                    <div>
+                        <h3 class="text-light/60 text-sm font-medium mb-2">资源中心</h3>
+                        <h2 class="text-3xl md:text-4xl font-bold">游戏下载</h2>
+                        <p class="text-light/70 mt-2 max-w-2xl">提供高质量的单机游戏下载，所有资源均经过安全检测，确保您的游戏体验顺畅无阻。</p>
+                    </div>
+
+                    <!-- 下载分类筛选 -->
+                    <div class="w-full md:w-auto">
+                        <div class="flex flex-wrap gap-2">
+                            <button
+                                class="download-category-btn bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                全部游戏
+                            </button>
+                            <button
+                                class="download-category-btn bg-dark hover:bg-dark/80 text-light px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                角色扮演
+                            </button>
+                            <button
+                                class="download-category-btn bg-dark hover:bg-dark/80 text-light px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                动作冒险
+                            </button>
+                            <button
+                                class="download-category-btn bg-dark hover:bg-dark/80 text-light px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                策略
+                            </button>
+                            <button
+                                class="download-category-btn bg-dark hover:bg-dark/80 text-light px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                模拟经营
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 游戏下载列表 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 游戏下载卡片 1 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/237/600/400" alt="艾尔登法环游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                            <div
+                                class="absolute top-3 right-3 bg-primary text-white text-xs font-bold px-2 py-1 rounded">
+                                热门</div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">艾尔登法环</h4>
+                                <div class="flex items-center">
+                                    <span class="text-light/70 text-sm bg-light/10 px-2 py-1 rounded">42.8 GB</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">一款以正统黑暗奇幻世界为舞台的动作RPG，探索辽阔的场景与地下迷宫。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">角色扮演</span>
+                                <span class="game-tag">开放世界</span>
+                                <span class="game-tag">动作</span>
+                            </div>
+
+                            <!-- 下载选项 -->
+                            <div class="space-y-2">
+                                <button
+                                    class="view-download-details w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center"
+                                    data-id="1">
+                                    <i class="fa fa-download mr-2"></i> 查看下载选项
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 游戏下载卡片 2 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/119/600/400" alt="赛博朋克2077游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">赛博朋克2077</h4>
+                                <div class="flex items-center">
+                                    <span class="text-light/70 text-sm bg-light/10 px-2 py-1 rounded">78.5 GB</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">未来都市的开放世界角色扮演游戏，玩家将扮演一名野心勃勃的雇佣兵。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">角色扮演</span>
+                                <span class="game-tag">开放世界</span>
+                                <span class="game-tag">科幻</span>
+                            </div>
+
+                            <!-- 下载选项 -->
+                            <div class="space-y-2">
+                                <button
+                                    class="view-download-details w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center"
+                                    data-id="2">
+                                    <i class="fa fa-download mr-2"></i> 查看下载选项
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 游戏下载卡片 3 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/160/600/400" alt="霍格沃茨之遗游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                            <div
+                                class="absolute top-3 right-3 bg-success text-white text-xs font-bold px-2 py-1 rounded">
+                                新品</div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">霍格沃茨之遗</h4>
+                                <div class="flex items-center">
+                                    <span class="text-light/70 text-sm bg-light/10 px-2 py-1 rounded">82.3 GB</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">在霍格沃茨的传奇时代成为你自己的女巫或巫师，体验19世纪的魔法世界。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">角色扮演</span>
+                                <span class="game-tag">魔法</span>
+                                <span class="game-tag">开放世界</span>
+                            </div>
+
+                            <!-- 下载选项 -->
+                            <div class="space-y-2">
+                                <button
+                                    class="view-download-details w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center"
+                                    data-id="3">
+                                    <i class="fa fa-download mr-2"></i> 查看下载选项
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 游戏下载卡片 4 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/180/600/400" alt="只狼影逝二度游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">只狼：影逝二度</h4>
+                                <div class="flex items-center">
+                                    <span class="text-light/70 text-sm bg-light/10 px-2 py-1 rounded">20.7 GB</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">一款以日本战国时代为背景的动作冒险游戏，玩家将扮演一名独臂忍者。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">动作</span>
+                                <span class="game-tag">冒险</span>
+                                <span class="game-tag">忍者</span>
+                            </div>
+
+                            <!-- 下载选项 -->
+                            <div class="space-y-2">
+                                <button
+                                    class="view-download-details w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center"
+                                    data-id="4">
+                                    <i class="fa fa-download mr-2"></i> 查看下载选项
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 游戏下载卡片 5 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/106/600/400" alt="XCOM2游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">XCOM2</h4>
+                                <div class="flex items-center">
+                                    <span class="text-light/70 text-sm bg-light/10 px-2 py-1 rounded">15.4 GB</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">一款回合制策略游戏，玩家需要领导一支精英部队，对抗外星入侵者的统治。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">策略</span>
+                                <span class="game-tag">回合制</span>
+                                <span class="game-tag">科幻</span>
+                            </div>
+
+                            <!-- 下载选项 -->
+                            <div class="space-y-2">
+                                <button
+                                    class="view-download-details w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center"
+                                    data-id="5">
+                                    <i class="fa fa-download mr-2"></i> 查看下载选项
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 游戏下载卡片 6 -->
+                    <div class="bg-dark rounded-xl overflow-hidden shadow-lg card-hover">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/175/600/400" alt="城市天际线游戏封面"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-bold">城市：天际线</h4>
+                                <div class="flex items-center">
+                                    <span class="text-light/70 text-sm bg-light/10 px-2 py-1 rounded">12.9 GB</span>
+                                </div>
+                            </div>
+                            <p class="text-light/70 text-sm mb-4 line-clamp-2">一款现代城市建设模拟游戏，玩家可以控制城市的方方面面，从区域规划到交通系统。
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="game-tag">模拟</span>
+                                <span class="game-tag">经营</span>
+                                <span class="game-tag">城市建设</span>
+                            </div>
+
+                            <!-- 下载选项 -->
+                            <div class="space-y-2">
+                                <button
+                                    class="view-download-details w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center"
+                                    data-id="6">
+                                    <i class="fa fa-download mr-2"></i> 查看下载选项
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 下载排行 -->
+                <div class="mt-16">
+                    <h3 class="text-xl font-bold mb-6">本周热门下载</h3>
+                    <div class="bg-dark rounded-xl p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-light/10">
+                                        <th class="text-left py-3 px-4 text-light/60 font-medium text-sm">排名</th>
+                                        <th class="text-left py-3 px-4 text-light/60 font-medium text-sm">游戏名称</th>
+                                        <th class="text-left py-3 px-4 text-light/60 font-medium text-sm">类型</th>
+                                        <th class="text-left py-3 px-4 text-light/60 font-medium text-sm">大小</th>
+                                        <th class="text-left py-3 px-4 text-light/60 font-medium text-sm">下载量</th>
+                                        <th class="text-left py-3 px-4 text-light/60 font-medium text-sm">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        class="border-b border-light/10 hover:bg-secondary/50 transition-colors duration-200">
+                                        <td class="py-3 px-4">
+                                            <span
+                                                class="inline-flex items-center justify-center w-6 h-6 bg-primary text-white rounded-full text-sm font-bold">1</span>
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center">
+                                                <img src="https://picsum.photos/id/237/50/50" alt="艾尔登法环"
+                                                    class="w-10 h-10 rounded object-cover mr-3">
+                                                <span class="font-medium">艾尔登法环</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4 text-light/70">角色扮演</td>
+                                        <td class="py-3 px-4 text-light/70">42.8 GB</td>
+                                        <td class="py-3 px-4 text-light/70">124,532</td>
+                                        <td class="py-3 px-4">
+                                            <button
+                                                class="bg-primary/20 hover:bg-primary/30 text-primary p-1.5 rounded transition-colors duration-200"
+                                                data-id="1">
+                                                <i class="fa fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        class="border-b border-light/10 hover:bg-secondary/50 transition-colors duration-200">
+                                        <td class="py-3 px-4">
+                                            <span
+                                                class="inline-flex items-center justify-center w-6 h-6 bg-light/20 text-white rounded-full text-sm font-bold">2</span>
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center">
+                                                <img src="https://picsum.photos/id/119/50/50" alt="赛博朋克2077"
+                                                    class="w-10 h-10 rounded object-cover mr-3">
+                                                <span class="font-medium">赛博朋克2077</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4 text-light/70">角色扮演</td>
+                                        <td class="py-3 px-4 text-light/70">78.5 GB</td>
+                                        <td class="py-3 px-4 text-light/70">98,765</td>
+                                        <td class="py-3 px-4">
+                                            <button
+                                                class="bg-primary/20 hover:bg-primary/30 text-primary p-1.5 rounded transition-colors duration-200"
+                                                data-id="2">
+                                                <i class="fa fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        class="border-b border-light/10 hover:bg-secondary/50 transition-colors duration-200">
+                                        <td class="py-3 px-4">
+                                            <span
+                                                class="inline-flex items-center justify-center w-6 h-6 bg-light/20 text-white rounded-full text-sm font-bold">3</span>
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center">
+                                                <img src="https://picsum.photos/id/160/50/50" alt="霍格沃茨之遗"
+                                                    class="w-10 h-10 rounded object-cover mr-3">
+                                                <span class="font-medium">霍格沃茨之遗</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4 text-light/70">角色扮演</td>
+                                        <td class="py-3 px-4 text-light/70">82.3 GB</td>
+                                        <td class="py-3 px-4 text-light/70">87,321</td>
+                                        <td class="py-3 px-4">
+                                            <button
+                                                class="bg-primary/20 hover:bg-primary/30 text-primary p-1.5 rounded transition-colors duration-200"
+                                                data-id="3">
+                                                <i class="fa fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        class="border-b border-light/10 hover:bg-secondary/50 transition-colors duration-200">
+                                        <td class="py-3 px-4">
+                                            <span
+                                                class="inline-flex items-center justify-center w-6 h-6 bg-light/20 text-white rounded-full text-sm font-bold">4</span>
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center">
+                                                <img src="https://picsum.photos/id/180/50/50" alt="只狼影逝二度"
+                                                    class="w-10 h-10 rounded object-cover mr-3">
+                                                <span class="font-medium">只狼：影逝二度</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4 text-light/70">动作冒险</td>
+                                        <td class="py-3 px-4 text-light/70">20.7 GB</td>
+                                        <td class="py-3 px-4 text-light/70">76,543</td>
+                                        <td class="py-3 px-4">
+                                            <button
+                                                class="bg-primary/20 hover:bg-primary/30 text-primary p-1.5 rounded transition-colors duration-200"
+                                                data-id="4">
+                                                <i class="fa fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-secondary/50 transition-colors duration-200">
+                                        <td class="py-3 px-4">
+                                            <span
+                                                class="inline-flex items-center justify-center w-6 h-6 bg-light/20 text-white rounded-full text-sm font-bold">5</span>
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center">
+                                                <img src="https://picsum.photos/id/106/50/50" alt="XCOM2"
+                                                    class="w-10 h-10 rounded object-cover mr-3">
+                                                <span class="font-medium">XCOM2</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4 text-light/70">策略</td>
+                                        <td class="py-3 px-4 text-light/70">15.4 GB</td>
+                                        <td class="py-3 px-4 text-light/70">65,432</td>
+                                        <td class="py-3 px-4">
+                                            <button
+                                                class="bg-primary/20 hover:bg-primary/30 text-primary p-1.5 rounded transition-colors duration-200"
+                                                data-id="5">
+                                                <i class="fa fa-download"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 下载帮助 -->
+                <div class="mt-16">
+                    <h3 class="text-xl font-bold mb-6">下载帮助</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-dark rounded-xl p-6">
+                            <div class="flex items-start">
+                                <div class="bg-primary/20 text-primary p-3 rounded-lg mr-4">
+                                    <i class="fa fa-question-circle text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold mb-2">如何下载游戏？</h4>
+                                    <p class="text-light/70">点击游戏卡片上的"查看下载选项"按钮，选择适合您的下载方式，然后按照提示完成下载和安装。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-dark rounded-xl p-6">
+                            <div class="flex items-start">
+                                <div class="bg-primary/20 text-primary p-3 rounded-lg mr-4">
+                                    <i class="fa fa-exclamation-triangle text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold mb-2">下载速度慢怎么办？</h4>
+                                    <p class="text-light/70">下载速度受网络环境影响较大，建议您选择合适的下载节点，或在网络空闲时段进行下载。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-dark rounded-xl p-6">
+                            <div class="flex items-start">
+                                <div class="bg-primary/20 text-primary p-3 rounded-lg mr-4">
+                                    <i class="fa fa-shield text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold mb-2">游戏安全吗？</h4>
+                                    <p class="text-light/70">所有游戏均经过多重安全检测，确保无病毒和恶意软件。建议您在安装前关闭杀毒软件的实时监控。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-dark rounded-xl p-6">
+                            <div class="flex items-start">
+                                <div class="bg-primary/20 text-primary p-3 rounded-lg mr-4">
+                                    <i class="fa fa-cog text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold mb-2">游戏无法运行怎么办？</h4>
+                                    <p class="text-light/70">请确保您的电脑满足游戏的最低配置要求，并安装了最新的显卡驱动和DirectX组件。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 下载详情模态框 -->
+        <div id="download-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+            <div class="absolute inset-0 bg-dark/80 backdrop-blur-sm" id="download-modal-overlay"></div>
+            <div class="relative bg-secondary rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-auto shadow-2xl transform transition-all duration-300 scale-95 opacity-0"
+                id="download-modal-content">
+                <button id="close-download-modal"
+                    class="absolute top-4 right-4 text-light/70 hover:text-white text-2xl transition-colors duration-200">
+                    <i class="fa fa-times"></i>
+                </button>
+
+                <div class="p-6 md:p-8">
+                    <!-- 模态框内容将通过JavaScript动态填充 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 下载进度模态框 -->
+        <div id="download-progress-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+            <div class="absolute inset-0 bg-dark/80 backdrop-blur-sm" id="download-progress-overlay"></div>
+            <div class="relative bg-secondary rounded-2xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all duration-300 scale-95 opacity-0"
+                id="download-progress-content">
+                <button id="close-download-progress"
+                    class="absolute top-4 right-4 text-light/70 hover:text-white text-2xl transition-colors duration-200">
+                    <i class="fa fa-times"></i>
+                </button>
+
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-4">正在下载游戏</h3>
+                    <div class="flex items-center mb-3">
+                        <img src="https://picsum.photos/id/237/60/60" alt="游戏封面" class="w-12 h-12 rounded-lg mr-3">
+                        <div>
+                            <p class="font-medium" id="downloading-game-name">艾尔登法环</p>
+                            <p class="text-light/70 text-sm" id="downloading-game-size">42.8 GB</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="w-full bg-dark/50 rounded-full h-2.5 mb-2">
+                            <div id="download-progress-bar" class="bg-primary h-2.5 rounded-full" style="width: 0%">
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-sm text-light/70">
+                            <span id="download-percentage">0%</span>
+                            <span id="download-speed">0 MB/s</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-light/70">
+                            <span id="download-remaining">剩余时间: 计算中...</span>
+                        </div>
+                        <button id="pause-download"
+                            class="bg-dark hover:bg-dark/80 text-light px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                            暂停
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 玩家社区区域 -->
+        <section id="community" class="py-16 bg-dark">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
+                    <div>
+                        <h3 class="text-light/60 text-sm font-medium mb-2">玩家聚集地</h3>
+                        <h2 class="text-3xl md:text-4xl font-bold">玩家社区</h2>
+                        <p class="text-light/70 mt-2 max-w-2xl">加入我们的玩家社区，与志同道合的游戏爱好者交流心得、分享游戏体验、参与精彩活动。</p>
+                    </div>
+
+                    <!-- 社区搜索 -->
+                    <div class="w-full md:w-auto relative">
+                        <input type="text" id="community-search" placeholder="搜索社区话题..."
+                            class="input-field pl-10 pr-4 py-2 w-full md:w-80">
+                        <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-light/50"></i>
+                    </div>
+                </div>
+
+                <!-- 社区分类导航 -->
+                <div class="bg-secondary rounded-xl overflow-hidden mb-8">
+                    <div class="flex overflow-x-auto scrollbar-hide">
+                        <button
+                            class="community-category-btn bg-primary text-white whitespace-nowrap px-6 py-4 text-sm font-medium">
+                            全部话题
+                        </button>
+                        <button
+                            class="community-category-btn bg-secondary hover:bg-secondary/80 text-light whitespace-nowrap px-6 py-4 text-sm font-medium transition-colors duration-200">
+                            游戏讨论
+                        </button>
+                        <button
+                            class="community-category-btn bg-secondary hover:bg-secondary/80 text-light whitespace-nowrap px-6 py-4 text-sm font-medium transition-colors duration-200">
+                            攻略交流
+                        </button>
+                        <button
+                            class="community-category-btn bg-secondary hover:bg-secondary/80 text-light whitespace-nowrap px-6 py-4 text-sm font-medium transition-colors duration-200">
+                            游戏MOD
+                        </button>
+                        <button
+                            class="community-category-btn bg-secondary hover:bg-secondary/80 text-light whitespace-nowrap px-6 py-4 text-sm font-medium transition-colors duration-200">
+                            组队开黑
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 热门话题 -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold">热门话题</h3>
+                        <a href="#"
+                            class="text-primary hover:text-primary/80 font-medium flex items-center transition-colors duration-200 text-sm">
+                            更多 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+
+                    <div class="bg-secondary rounded-xl overflow-hidden shadow-lg card-hover">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://picsum.photos/id/237/600/400" alt="艾尔登法环讨论"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                            <div class="absolute bottom-4 left-4">
+                                <span
+                                    class="bg-primary/90 text-white text-xs font-bold px-2 py-1 rounded mr-2">热门</span>
+                                <span class="bg-light/20 text-white text-xs font-bold px-2 py-1 rounded">角色扮演</span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h4 class="text-lg font-bold mb-2">艾尔登法环隐藏BOSS讨论：你找到了多少个？</h4>
+                            <p class="text-light/70 text-sm mb-4">
+                                分享你发现的隐藏BOSS和挑战心得，讨论最有难度的BOSS战策略...从巨人山顶到深根底层，游戏中隐藏着许多不为人知的强大敌人，每一个都带来独特的挑战和丰厚的奖励。</p>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <img src="https://picsum.photos/id/1005/50/50" alt="用户头像"
+                                        class="w-8 h-8 rounded-full object-cover mr-3">
+                                    <div>
+                                        <p class="text-light/90 text-sm font-medium">老猎人</p>
+                                        <p class="text-light/60 text-xs">3天前</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center text-light/60 text-sm">
+                                    <i class="fa fa-comment-o mr-1"></i> 256
+                                    <i class="fa fa-heart-o ml-3 mr-1"></i> 843
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 最新帖子 -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold">最新帖子</h3>
+                        <button
+                            class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center">
+                            <i class="fa fa-pencil-square-o mr-2"></i> 发布新帖
+                        </button>
+                    </div>
+
+                    <div class="bg-secondary rounded-xl p-5 hover:shadow-lg transition-all duration-300">
+                        <div class="flex items-start">
+                            <img src="https://picsum.photos/id/1005/50/50" alt="用户头像"
+                                class="w-10 h-10 rounded-full object-cover mr-4">
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div>
+                                        <h4 class="font-medium">老猎人</h4>
+                                        <p class="text-light/60 text-xs">3小时前</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="text-light/60 text-sm flex items-center mr-4">
+                                            <i class="fa fa-eye mr-1"></i> 428
+                                        </span>
+                                        <span class="text-light/60 text-sm flex items-center">
+                                            <i class="fa fa-comment-o mr-1"></i> 23
+                                        </span>
+                                    </div>
+                                </div>
+                                <h5
+                                    class="font-bold mb-2 hover:text-primary transition-colors duration-200 cursor-pointer">
+                                    分享我的艾尔登法环全收集心得与路线规划</h5>
+                                <p class="text-light/70 text-sm mb-3">
+                                    经过100多个小时的游戏，我终于完成了艾尔登法环的全收集！在这里分享一下我的心得和路线规划，希望对大家有所帮助。游戏中的收集要素非常丰富，包括武器、防具、魔法、祷告、骨灰等，合理的路线规划可以帮助你更高效地完成收集。
+                                </p>
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span
+                                        class="bg-light/10 text-light/80 text-xs font-medium px-3 py-1 rounded-full">艾尔登法环</span>
+                                    <span
+                                        class="bg-light/10 text-light/80 text-xs font-medium px-3 py-1 rounded-full">收集</span>
+                                    <span
+                                        class="bg-light/10 text-light/80 text-xs font-medium px-3 py-1 rounded-full">攻略</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-light/60 text-sm">
+                                        <span
+                                            class="flex items-center mr-4 cursor-pointer hover:text-primary transition-colors duration-200">
+                                            <i class="fa fa-heart-o mr-1"></i> 76
+                                        </span>
+                                        <span
+                                            class="flex items-center cursor-pointer hover:text-primary transition-colors duration-200">
+                                            <i class="fa fa-bookmark-o mr-1"></i> 收藏
+                                        </span>
+                                    </div>
+                                    <button
+                                        class="text-primary hover:text-primary/80 font-medium text-sm flex items-center transition-colors duration-200">
+                                        查看详情 <i class="fa fa-angle-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 社区活动日历 -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold">社区活动</h3>
+                        <a href="#"
+                            class="text-primary hover:text-primary/80 font-medium flex items-center transition-colors duration-200 text-sm">
+                            查看全部活动 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+
+                    <div class="bg-secondary rounded-xl overflow-hidden shadow-lg card-hover">
+                        <div class="relative h-36 overflow-hidden">
+                            <img src="https://picsum.photos/id/237/600/400" alt="艾尔登法环PVP比赛"
+                                class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                            <div
+                                class="absolute top-3 left-3 bg-primary text-white text-xs font-bold px-2 py-1 rounded">
+                                进行中</div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-light/60 text-sm"><i class="fa fa-calendar mr-1"></i> 6月15日 -
+                                    6月30日</span>
+                                <span class="bg-primary/20 text-primary text-xs font-medium px-2 py-1 rounded">赛事</span>
+                            </div>
+                            <h4 class="text-lg font-bold mb-2">艾尔登法环PVP锦标赛</h4>
+                            <p class="text-light/70 text-sm mb-4">
+                                参与我们的艾尔登法环PVP锦标赛，展示你的战斗技巧，赢取丰厚奖励！比赛分为多个组别，包括新手组、进阶组和大师组，无论你是PVP新手还是高手，都能找到适合自己的挑战。</p>
+                            <button
+                                class="w-full bg-dark hover:bg-dark/80 text-light font-medium py-2 rounded-lg transition-all duration-300">
+                                立即报名
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活跃用户 -->
+                <div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold">活跃用户</h3>
+                        <a href="#"
+                            class="text-primary hover:text-primary/80 font-medium flex items-center transition-colors duration-200 text-sm">
+                            查看更多 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+
+                    <div class="bg-secondary rounded-xl p-4 hover:shadow-lg transition-all duration-300">
+                        <div class="flex items-center">
+                            <div class="relative mr-4">
+                                <img src="https://picsum.photos/id/1005/100/100" alt="用户头像"
+                                    class="w-16 h-16 rounded-full object-cover">
+                                <div
+                                    class="absolute -bottom-1 -right-1 bg-primary text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">
+                                    <i class="fa fa-crown"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-medium">老猎人</h4>
+                                <p class="text-light/60 text-xs mb-2">攻略达人 | 发帖 243 | 获赞 5.2k</p>
+                                <div class="flex space-x-2">
+                                    <span
+                                        class="bg-light/10 text-light/80 text-xs font-medium px-3 py-1 rounded-full">艾尔登法环</span>
+                                    <span
+                                        class="bg-light/10 text-light/80 text-xs font-medium px-3 py-1 rounded-full">只狼</span>
+                                    <span
+                                        class="bg-light/10 text-light/80 text-xs font-medium px-3 py-1 rounded-full">黑暗之魂</span>
+                                </div>
+                            </div>
+                            <button
+                                class="bg-primary/20 hover:bg-primary/30 text-primary p-2 rounded transition-colors duration-200">
+                                <i class="fa fa-user-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚区域 -->
+    <footer class="bg-dark pt-16 pb-8">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                <!-- 品牌信息 -->
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="bg-primary text-white w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fa fa-gamepad text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">游戏乐园</h3>
+                    </div>
+                    <p class="text-light/70 mb-6">
+                        游戏乐园是您探索游戏世界的最佳伙伴，提供最新、最热门的游戏资讯、下载和社区交流服务。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#"
+                            class="bg-light/10 hover:bg-primary/80 text-light w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                        <a href="#"
+                            class="bg-light/10 hover:bg-primary/80 text-light w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                        <a href="#"
+                            class="bg-light/10 hover:bg-primary/80 text-light w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 快速链接 -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">快速链接</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#"
+                                class="text-light/70 hover:text-primary transition-colors duration-200 flex items-center">
+                                <i class="fa fa-angle-right mr-2"></i> 首页
+                            </a></li>
+                        <li><a href="#"
+                                class="text-light/70 hover:text-primary transition-colors duration-200 flex items-center">
+                                <i class="fa fa-angle-right mr-2"></i> 游戏下载
+                            </a></li>
+                        <li><a href="#"
+                                class="text-light/70 hover:text-primary transition-colors duration-200 flex items-center">
+                                <i class="fa fa-angle-right mr-2"></i> 玩家社区
+                            </a></li>
+                        <li><a href="#"
+                                class="text-light/70 hover:text-primary transition-colors duration-200 flex items-center">
+                                <i class="fa fa-angle-right mr-2"></i> 游戏攻略
+                            </a></li>
+                        <li><a href="#"
+                                class="text-light/70 hover:text-primary transition-colors duration-200 flex items-center">
+                                <i class="fa fa-angle-right mr-2"></i> 新闻资讯
+                            </a></li>
+                        <li><a href="#"
+                                class="text-light/70 hover:text-primary transition-colors duration-200 flex items-center">
+                                <i class="fa fa-angle-right mr-2"></i> 关于我们
+                            </a></li>
+                    </ul>
+                </div>
+
+                <!-- 联系我们 -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">联系我们</h4>
+                    <ul class="space-y-3">
+                        <li class="text-light/70 flex items-start">
+                            <i class="fa fa-map-marker mt-1 mr-3"></i>
+                            <span>北京市海淀区中关村科技园区8号楼</span>
+                        </li>
+                        <li class="text-light/70 flex items-center">
+                            <i class="fa fa-phone mr-3"></i>
+                            <span>400-123-4567</span>
+                        </li>
+                        <li class="text-light/70 flex items-center">
+                            <i class="fa fa-envelope mr-3"></i>
+                            <span>support@youlan.com</span>
+                        </li>
+                        <li class="text-light/70 flex items-center">
+                            <i class="fa fa-clock-o mr-3"></i>
+                            <span>周一至周日 9:00-21:00</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 下载应用 -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">下载应用</h4>
+                    <p class="text-light/70 mb-4">
+                        下载我们的移动应用，随时随地获取最新游戏资讯和下载资源。
+                    </p>
+                    <div class="space-y-3">
+                        <a href="#"
+                            class="bg-light/10 hover:bg-light/20 rounded-lg p-3 flex items-center transition-colors duration-300">
+                            <i class="fa fa-apple text-2xl mr-3"></i>
+                            <div>
+                                <div class="text-xs text-light/60">下载</div>
+                                <div class="font-medium">App Store</div>
+                            </div>
+                        </a>
+                        <a href="#"
+                            class="bg-light/10 hover:bg-light/20 rounded-lg p-3 flex items-center transition-colors duration-300">
+                            <i class="fa fa-android text-2xl mr-3"></i>
+                            <div>
+                                <div class="text-xs text-light/60">下载</div>
+                                <div class="font-medium">Google Play</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 订阅区域 -->
+            <div class="bg-secondary rounded-2xl p-6 md:p-8 mb-12">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div>
+                        <h4 class="text-xl font-bold mb-2">订阅我们的新闻资讯</h4>
+                        <p class="text-light/70">获取最新游戏资讯、独家优惠和社区活动信息</p>
+                    </div>
+                    <div class="w-full md:w-auto flex">
+                        <input type="email" placeholder="输入您的邮箱地址" class="input-field px-4 py-2.5 w-full md:w-80">
+                        <button
+                            class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-lg font-medium ml-2 transition-colors duration-300">
+                            订阅
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 版权信息 -->
+            <div class="pt-8 border-t border-light/10 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-light/60 text-sm mb-4 md:mb-0">
+                    &copy; 2025 游戏乐园. 保留所有权利.
+                </p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-light/60 hover:text-primary text-sm transition-colors duration-200">隐私政策</a>
+                    <a href="#" class="text-light/60 hover:text-primary text-sm transition-colors duration-200">使用条款</a>
+                    <a href="#"
+                        class="text-light/60 hover:text-primary text-sm transition-colors duration-200">Cookie政策</a>
+                    <a href="#" class="text-light/60 hover:text-primary text-sm transition-colors duration-200">帮助中心</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
